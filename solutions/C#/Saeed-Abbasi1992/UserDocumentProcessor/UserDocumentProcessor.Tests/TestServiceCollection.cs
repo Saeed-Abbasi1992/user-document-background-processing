@@ -2,11 +2,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using UserDocumentProcessor.Application;
 using UserDocumentProcessor.Application.Interfaces;
 using UserDocumentProcessor.Domain;
 using UserDocumentProcessor.Domain.Repositories;
+using UserDocumentProcessor.Infrastructure;
 using UserDocumentProcessor.Infrastructure.Persistence;
 using UserDocumentProcessor.Infrastructure.Persistence.Repositories;
 using UserDocumentProcessor.Infrastructure.Services;
@@ -35,6 +37,12 @@ public static class TestServiceCollection
         });
 
         // File Storage Provider
+        var options = Options.Create(new FileStorageSettings
+        {
+            BasePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads")
+        });
+
+        var fileStorage = new FileStorageProvider(options);
         services.AddScoped<IFileStorageProvider, FileStorageProvider>();
 
         // Mock Notification Services

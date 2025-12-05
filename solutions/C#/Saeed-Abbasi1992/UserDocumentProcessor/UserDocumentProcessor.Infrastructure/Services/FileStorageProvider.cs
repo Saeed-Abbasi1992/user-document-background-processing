@@ -1,4 +1,5 @@
-﻿using UserDocumentProcessor.Application.Interfaces;
+﻿using Microsoft.Extensions.Options;
+using UserDocumentProcessor.Application.Interfaces;
 
 namespace UserDocumentProcessor.Infrastructure.Services
 {
@@ -6,15 +7,17 @@ namespace UserDocumentProcessor.Infrastructure.Services
     {
         private readonly string _basePath;
 
-        public FileStorageProvider()
+        public FileStorageProvider(IOptions<FileStorageSettings> options)
         {
-            _basePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+            _basePath = options.Value.BasePath;
         }
 
         public string[] GetFilesPath()
         {
-            var uploadRoot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-            return Directory.GetFiles(uploadRoot, "*", SearchOption.AllDirectories);
+            if (!Directory.Exists(_basePath))
+                return Array.Empty<string>();
+
+            return Directory.GetFiles(_basePath, "*", SearchOption.AllDirectories);
         }
 
         public async Task<string> SaveFileAsync(Guid userId, string fileName, Stream fileStream)
@@ -35,9 +38,7 @@ namespace UserDocumentProcessor.Infrastructure.Services
         public Task DeleteFileAsync(string fileName)
         {
             if (File.Exists(fileName))
-            {
                 File.Delete(fileName);
-            }
 
             return Task.CompletedTask;
         }

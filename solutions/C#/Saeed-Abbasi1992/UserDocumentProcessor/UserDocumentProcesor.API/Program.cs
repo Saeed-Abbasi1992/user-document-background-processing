@@ -10,6 +10,7 @@ using UserDocumentProcessor.Application;
 using UserDocumentProcessor.Application.Interfaces;
 using UserDocumentProcessor.Domain;
 using UserDocumentProcessor.Domain.Repositories;
+using UserDocumentProcessor.Infrastructure;
 using UserDocumentProcessor.Infrastructure.Persistence;
 using UserDocumentProcessor.Infrastructure.Persistence.Repositories;
 using UserDocumentProcessor.Infrastructure.Services;
@@ -77,7 +78,11 @@ builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
 builder.Services.AddScoped<IUnitOfWork, EFUnitOfWork>();
+builder.Services.Configure<FileStorageSettings>(
+    builder.Configuration.GetSection("FileStorageSettings")
+);
 builder.Services.AddScoped<IFileStorageProvider, FileStorageProvider>();
+
 builder.Services.AddScoped<IBackgroundJobService, BackgroundJobService>();
 builder.Services.AddScoped<IFileCleanupJob, FileCleanupJob>();
 
@@ -92,6 +97,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll", policy =>
         policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 });
+
+builder.Services.AddProjectHealthChecks();
 
 var app = builder.Build();
 
@@ -121,8 +128,6 @@ RecurringJob.AddOrUpdate<IFileCleanupJob>(
     job => job.CleanupAsync(),
     "0 0 * * *"
 );
-
-builder.Services.AddProjectHealthChecks();
 
 app.MapHealthChecks("/health/live", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
 {

@@ -47,35 +47,34 @@ public class IntegrationTests
         File.Delete(savedPath);
     }
 
-
     [Fact]
-    public async Task FileCleanupJob_ShouldDeleteStaleAndOrphanFiles()
+    public async Task FileCleanupJob_ShouldDeleteStaleAndOrphanFiles_Properly()
     {
-        var docRepo = _serviceProvider.GetRequiredService<IDocumentRepository>();
-        var unitOfWork = _serviceProvider.GetRequiredService<IUnitOfWork>();
         var fileStorage = _serviceProvider.GetRequiredService<IFileStorageProvider>();
         var cleanupJob = _serviceProvider.GetRequiredService<IFileCleanupJob>();
+        var docRepo = _serviceProvider.GetRequiredService<IDocumentRepository>();
+        var unitOfWork = _serviceProvider.GetRequiredService<IUnitOfWork>();
 
-        // Stale DB file
         var userId = Guid.NewGuid();
-        var staleFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", userId.ToString(), "stale.txt");
-        Directory.CreateDirectory(Path.GetDirectoryName(staleFile));
-        await File.WriteAllTextAsync(staleFile, "stale content");
+        var staleFileName = "stale.txt";
 
-        var staleDoc = new DocumentEntity(userId, staleFile, "stale.txt") { CreationDateTime = DateTime.Now.AddDays(-2) };
-        staleDoc.MarkFailed();
+        var staleFilePath = await fileStorage.SaveFileAsync(userId, staleFileName, new MemoryStream(Encoding.UTF8.GetBytes("stale content")));
+
+        var staleDoc = new DocumentEntity(userId, staleFilePath, staleFileName)
+        {
+            CreationDateTime = DateTime.Now.AddDays(-2)
+        };
+        staleDoc.MarkFailed();//marked as stailed document
         await docRepo.AddAsync(staleDoc);
         await unitOfWork.SaveChangesAsync();
 
-        // Orphan file
-        var orphanFile = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "orphan.txt");
-        await File.WriteAllTextAsync(orphanFile, "orphan content");
+        var orphanFilePath = await fileStorage.SaveFileAsync(userId, $"orphan-{userId}.txt", new MemoryStream(Encoding.UTF8.GetBytes("orphan content")));
 
         await cleanupJob.CleanupAsync();
 
         var docInDb = await docRepo.GetByIdAsync(staleDoc.Id);
         Assert.True(docInDb.IsDeleted);
-        Assert.False(File.Exists(staleFile));
-        Assert.False(File.Exists(orphanFile));
+        Assert.False(File.Exists(staleFilePath));
+        Assert.False(File.Exists(orphanFilePath));
     }
 }
