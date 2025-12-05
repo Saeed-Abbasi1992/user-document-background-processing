@@ -28,7 +28,6 @@ cd <repo>
 
 2. Configure:
 - Update `appsettings.json` connection strings
-- Set file storage paths
 
 3. Build & Run:
 ```bash
@@ -37,7 +36,7 @@ dotnet run
 ```
 
 4. Health Checks:
-- Liveness: `/health/live`
+- Liveness: `/health/self`
 - Readiness: `/health/ready`
 
 5. **Hangfire Dashboard** available at `/hangfire`

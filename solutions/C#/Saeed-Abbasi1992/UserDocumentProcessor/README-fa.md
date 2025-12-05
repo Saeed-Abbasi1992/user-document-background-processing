@@ -28,7 +28,6 @@ cd <repo>
 
 2. پیکربندی:
 - به‌روزرسانی connection string در `appsettings.json`
-- تنظیم مسیر ذخیره فایل‌ها
 
 3. ساخت و اجرا:
 ```bash
@@ -37,7 +36,7 @@ dotnet run
 ```
 
 4. Health Checks:
-- Liveness: `/health/live`
+- Liveness: `/health/self`
 - Readiness: `/health/ready`
 
 5. **داشبورد Hangfire** در مسیر `/hangfire`
