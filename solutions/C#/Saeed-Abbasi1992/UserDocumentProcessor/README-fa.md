@@ -28,6 +28,7 @@ cd <repo>
 
 2. پیکربندی:
 - به‌روزرسانی connection string در `appsettings.json`
+- تنظیم مسیر ذخیره فایل‌ها
 
 3. ساخت و اجرا:
 ```bash

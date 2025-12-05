@@ -28,6 +28,7 @@ cd <repo>
 
 2. Configure:
 - Update `appsettings.json` connection strings
+- Set file storage paths
 
 3. Build & Run:
 ```bash
