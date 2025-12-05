@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\UserDocumentProcesor.API\UserDocumentProcessor.API.csproj" />
+    <ProjectReference Include="..\UserDocumentProcessor.API\UserDocumentProcessor.API.csproj" />
   </ItemGroup>
 
   <ItemGroup>
